@@ -1,0 +1,12 @@
+{
+  "name": "md2xhs",
+  "version": "1.0.0",
+  "description": "将 Markdown 转换为图片",
+  "main": "md2img_browser.js",
+  "dependencies": {
+    "highlight.js": "^11.11.1",
+    "marked": "^9.1.6",
+    "minimist": "^1.2.8",
+    "puppeteer": "^24.6.1"
+  }
+}

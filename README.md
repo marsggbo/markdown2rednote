@@ -48,3 +48,11 @@ found 0 vulnerabilities
 ✅ 完成! 图片已保存到 my_file/ 目录
 ```
 A folder with the same prefix as your_markdown_file.md will be created, and figures will be saved in it.
+
+生成结果可在`my_file_images`中查看
+
+![](my_file_images/01.png)
+![](my_file_images/02.png)
+![](my_file_images/03.png)
+![](my_file_images/04.png)
+![](my_file_images/05.png)
