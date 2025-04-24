@@ -1,12 +1,46 @@
 {
-  "name": "md2xhs",
+  "name": "markdown2rednote",
   "version": "1.0.0",
-  "description": "将 Markdown 转换为图片",
-  "main": "md2img_browser.js",
+  "description": "将 Markdown 转换为小红书风格图片的桌面应用",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
   "dependencies": {
-    "highlight.js": "^11.11.1",
     "marked": "^9.1.6",
     "minimist": "^1.2.8",
-    "puppeteer": "^24.6.1"
+    "puppeteer": "^22.15.0"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.markdown2rednote.app",
+    "productName": "Markdown2RedNote",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.icns"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/*",
+      "!build/*"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "node_modules/puppeteer/.local-chromium",
+        "to": "chromium"
+      }
+    ]
   }
 }

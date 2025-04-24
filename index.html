@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown 转小红书图片</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        button {
+            background-color: #ff2e4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff1a3d;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .file-path {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Markdown 转小红书图片</h1>
+        
+        <div class="input-group">
+            <label>选择 Markdown 文件：</label>
+            <button id="selectFile">选择文件</button>
+            <div id="selectedFile" class="file-path"></div>
+        </div>
+        
+        <div class="input-group">
+            <label>选择输出目录：</label>
+            <button id="selectOutput">选择目录</button>
+            <div id="selectedOutput" class="file-path"></div>
+        </div>
+        
+        <button id="convert" disabled>开始转换</button>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const { exec } = require('child_process');
+        const path = require('path');
+
+        let selectedFile = '';
+        let selectedOutput = '';
+
+        document.getElementById('selectFile').addEventListener('click', async () => {
+            const filePath = await ipcRenderer.invoke('select-file');
+            if (filePath) {
+                selectedFile = filePath;
+                document.getElementById('selectedFile').textContent = filePath;
+                updateConvertButton();
+            }
+        });
+
+        document.getElementById('selectOutput').addEventListener('click', async () => {
+            const dirPath = await ipcRenderer.invoke('select-output-dir');
+            if (dirPath) {
+                selectedOutput = dirPath;
+                document.getElementById('selectedOutput').textContent = dirPath;
+                updateConvertButton();
+            }
+        });
+
+        document.getElementById('convert').addEventListener('click', async () => {
+            const button = document.getElementById('convert');
+            const status = document.getElementById('status');
+            
+            button.disabled = true;
+            status.className = 'status';
+            status.textContent = '正在转换...';
+            
+            try {
+                // 创建输出目录
+                const outputDir = path.join(selectedOutput, path.basename(selectedFile, '.md') + '_images');
+                const mkdirCommand = `mkdir -p "${outputDir}"`;
+                
+                exec(mkdirCommand, (mkdirError) => {
+                    if (mkdirError) {
+                        status.className = 'status error';
+                        status.textContent = `创建输出目录失败: ${mkdirError.message}`;
+                        button.disabled = false;
+                        return;
+                    }
+                    
+                    // 获取应用路径
+                    const appPath = process.env.APP_PATH || __dirname;
+                    const scriptPath = path.join(appPath, 'md2img_browser.js');
+                    const stylePath = path.join(appPath, 'xiaohongshu.css');
+                    
+                    // 执行转换命令
+                    const command = `node "${scriptPath}" "${selectedFile}" --output "${outputDir}/" --width 700 --style "${stylePath}"`;
+                    
+                    exec(command, (error, stdout, stderr) => {
+                        if (error) {
+                            status.className = 'status error';
+                            status.textContent = `转换失败: ${error.message}`;
+                        } else {
+                            status.className = 'status success';
+                            status.textContent = '转换成功！图片已保存到输出目录。';
+                        }
+                        button.disabled = false;
+                    });
+                });
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = `转换失败: ${error.message}`;
+                button.disabled = false;
+            }
+        });
+
+        function updateConvertButton() {
+            document.getElementById('convert').disabled = !(selectedFile && selectedOutput);
+        }
+    </script>
+</body>
+</html> 
