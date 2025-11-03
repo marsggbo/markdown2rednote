@@ -11,7 +11,7 @@
 
 ## 安装说明
 
-1. 下载最新版本的 Markdown2RedNote.dmg 文件
+1. 下载最新版本的 [Markdown2RedNote.dmg](https://github.com/marsggbo/markdown2rednote/releases/tag/release) 文件
 2. 双击打开 dmg 文件
 3. 将 Markdown2RedNote 应用拖到 Applications 文件夹
 4. 从 Applications 文件夹启动应用
